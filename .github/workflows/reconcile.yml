@@ -1,0 +1,26 @@
+# External reconciler tick. Vercel Hobby only allows daily crons, so this calls
+# /api/cron/reconcile every 5 minutes (GitHub may delay scheduled runs).
+# Repository settings → Secrets and variables → Actions:
+#   secret   CRON_SECRET  same value as the Vercel env var
+#   variable APP_URL      e.g. https://studio.atlashub.si
+name: Reconcile
+
+on:
+  schedule:
+    - cron: "*/5 * * * *"
+  workflow_dispatch:
+
+jobs:
+  tick:
+    runs-on: ubuntu-latest
+    timeout-minutes: 2
+    if: ${{ vars.APP_URL != '' }}
+    steps:
+      - name: Call /api/cron/reconcile
+        env:
+          CRON_SECRET: ${{ secrets.CRON_SECRET }}
+          APP_URL: ${{ vars.APP_URL }}
+        run: |
+          curl --fail-with-body --silent --show-error --max-time 70 \
+            -H "Authorization: Bearer $CRON_SECRET" \
+            "$APP_URL/api/cron/reconcile"

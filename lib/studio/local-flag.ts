@@ -7,7 +7,7 @@ import { useCallback, useSyncExternalStore } from "react"
  * useSyncExternalStore (server snapshot = null), written through `set`, and
  * re-read when this tab or another one changes it.
  */
-const EVENT = "vireo:local-flag"
+const EVENT = "atlas:local-flag"
 
 function read(key: string): string | null {
   try {

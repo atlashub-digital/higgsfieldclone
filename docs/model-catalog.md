@@ -1,6 +1,6 @@
-# Vireo model catalog
+# Atlas Studio model catalog
 
-Source of truth for which Higgsfield models Vireo exposes, where each one's REST
+Source of truth for which Higgsfield models Atlas Studio exposes, where each one's REST
 contract comes from, and why anything is left out.
 
 - **Researched:** 2026-09-26, against `https://docs.higgsfield.ai/docs/llms.txt`,

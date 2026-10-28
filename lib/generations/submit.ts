@@ -29,7 +29,7 @@ import {
   IN_FLIGHT,
   type GenerationDoc,
 } from "@/lib/db/collections"
-import { env } from "@/lib/env"
+import { env, generationConfigured } from "@/lib/env"
 import {
   AmbiguousSubmitError,
   higgsfield,
@@ -137,6 +137,11 @@ export async function submitGeneration(
   raw: unknown
 ): Promise<GenerationView> {
   const input = submitSchema.parse(raw)
+  if (!generationConfigured())
+    throw new UserFacingError(
+      "Generation isn't available yet — we're opening it soon.",
+      "GENERATION_DISABLED"
+    )
   await enforceRateLimit(
     `submit:${user.id}`,
     LIMITS.submitPerUser.limit,

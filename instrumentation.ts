@@ -10,10 +10,10 @@ export async function register() {
   if (value.NODE_ENV !== "development" || !value.MONGODB_URI) return
   if (process.env.DEV_RECONCILE === "false") return
   const globalFlag = globalThis as typeof globalThis & {
-    __vireoReconciler?: boolean
+    __atlasReconciler?: boolean
   }
-  if (globalFlag.__vireoReconciler) return
-  globalFlag.__vireoReconciler = true
+  if (globalFlag.__atlasReconciler) return
+  globalFlag.__atlasReconciler = true
   const { reconcile } = await import("./lib/generations/reconcile")
   const tick = async () => {
     try {

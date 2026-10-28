@@ -1,6 +1,6 @@
 # Runbook
 
-Operating Vireo in production. Everything below is idempotent unless noted.
+Operating Atlas Studio in production. Everything below is idempotent unless noted.
 
 ## Health at a glance
 
