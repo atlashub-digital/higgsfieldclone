@@ -54,11 +54,11 @@ export function creditsAddedText(props: CreditsAddedEmailProps): string {
 }
 
 CreditsAddedEmail.PreviewProps = {
-  brand: "Vireo",
+  brand: "Atlas Studio",
   credits: 2200,
   balance: 3150,
   amountLabel: "$20.00",
-  appUrl: "https://vireo.studio",
+  appUrl: "https://studio.atlashub.si",
 } satisfies CreditsAddedEmailProps
 
 export default CreditsAddedEmail

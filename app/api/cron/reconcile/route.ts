@@ -15,7 +15,7 @@ function authorized(request: Request): boolean {
   return given.length === expected.length && timingSafeEqual(given, expected)
 }
 
-/** Vercel Cron (every minute) sends `Authorization: Bearer $CRON_SECRET`. */
+/** Vercel Cron (daily) and the GitHub Actions workflow (every 5 min) send `Authorization: Bearer $CRON_SECRET`. */
 export async function GET(request: Request) {
   if (!authorized(request)) return json({ error: "Unauthorized" }, 401)
   return json(await reconcile())

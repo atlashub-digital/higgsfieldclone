@@ -29,8 +29,8 @@ const schema = z.object({
 
   AUTH_SECRET: optionalString,
   AUTH_RESEND_KEY: optionalString,
-  EMAIL_FROM: z.string().default("Vireo <login@vireo.studio>"),
-  SUPPORT_EMAIL: z.email().default("support@vireo.studio"),
+  EMAIL_FROM: z.string().default("Atlas Studio <login@atlashub.si>"),
+  SUPPORT_EMAIL: z.email().default("support@atlashub.si"),
   SIGNUP_BONUS_CREDITS: z.coerce.number().int().min(0).default(0),
   /** Comma-separated emails that get the admin role. */
   ADMIN_EMAILS: z
@@ -45,7 +45,7 @@ const schema = z.object({
   BLOCK_DISPOSABLE_EMAIL: bool(true),
 
   MONGODB_URI: optionalString,
-  MONGODB_DB: z.string().default("vireo-studio"),
+  MONGODB_DB: z.string().default("atlas-studio"),
 
   HF_API_BASE_URL: z.url().default("https://api.higgsfield.ai"),
   HF_CREDENTIALS: optionalString.refine(
@@ -84,18 +84,38 @@ const REQUIRED_IN_PRODUCTION = [
   "AUTH_SECRET",
   "AUTH_RESEND_KEY",
   "MONGODB_URI",
-  "HF_CREDENTIALS",
-  "HF_WEBHOOK_SECRET",
-  "HF_WEBHOOK_BASE_URL",
-  "STRIPE_SECRET_KEY",
-  "STRIPE_WEBHOOK_SECRET",
-  "R2_ACCOUNT_ID",
-  "R2_ACCESS_KEY_ID",
-  "R2_SECRET_ACCESS_KEY",
-  "R2_BUCKET",
-  "R2_PUBLIC_BASE_URL",
   "CRON_SECRET",
 ] as const satisfies readonly (keyof Env)[]
+
+/**
+ * Optional service groups. Production may boot without a group (demo mode:
+ * generation or checkout is disabled and the UI says so), but once any key of
+ * a group is set, the whole group is required.
+ */
+const OPTIONAL_GROUPS_IN_PRODUCTION = {
+  generation: [
+    "HF_CREDENTIALS",
+    "HF_WEBHOOK_SECRET",
+    "HF_WEBHOOK_BASE_URL",
+    "R2_ACCOUNT_ID",
+    "R2_ACCESS_KEY_ID",
+    "R2_SECRET_ACCESS_KEY",
+    "R2_BUCKET",
+    "R2_PUBLIC_BASE_URL",
+  ],
+  payments: ["STRIPE_SECRET_KEY", "STRIPE_WEBHOOK_SECRET"],
+} as const satisfies Record<string, readonly (keyof Env)[]>
+
+function missingInProduction(value: Env): (keyof Env)[] {
+  const missing: (keyof Env)[] = REQUIRED_IN_PRODUCTION.filter(
+    (key) => !value[key]
+  )
+  for (const group of Object.values(OPTIONAL_GROUPS_IN_PRODUCTION)) {
+    if (group.some((key) => value[key]))
+      missing.push(...group.filter((key) => !value[key]))
+  }
+  return missing
+}
 
 export class EnvError extends Error {
   constructor(message: string) {
@@ -118,7 +138,7 @@ export function env(): Env {
   }
   const value = parsed.data
   if (value.NODE_ENV === "production" && !isBuildPhase()) {
-    const missing = REQUIRED_IN_PRODUCTION.filter((key) => !value[key])
+    const missing = missingInProduction(value)
     if (missing.length)
       throw new EnvError(
         `Missing required production environment variables:\n${missing
@@ -146,6 +166,12 @@ export function env(): Env {
   }
   cached = value
   return value
+}
+
+/** Generation needs the platform key and, in production, R2 for outputs. */
+export function generationConfigured(value: Env = env()): boolean {
+  if (!value.HF_CREDENTIALS) return false
+  return value.NODE_ENV !== "production" || r2Configured(value)
 }
 
 export function r2Configured(value: Env = env()): boolean {

@@ -1,6 +1,6 @@
-# Vireo — AI image & video studio
+# Atlas Studio — AI image & video studio
 
-Vireo is a production-grade studio for generating images and video with every
+Atlas Studio is a production-grade studio for generating images and video with every
 model the [Higgsfield REST API](https://docs.higgsfield.ai) exposes: Seedance,
 Kling, Wan, Soul, Cinema Studio, Genjutsu, MiniMax, LTX, PixVerse, Grok,
 Recraft, Qwen, Ideogram and more — **47 picker entries covering 81 documented
@@ -44,7 +44,7 @@ pnpm db:init --admin=you@example.com   # indexes + Effects presets (+ admin role
 ```
 
 For offline development set in `.env.local`:
-`MONGODB_URI=mongodb://127.0.0.1:27027/?replicaSet=vireo`,
+`MONGODB_URI=mongodb://127.0.0.1:27027/?replicaSet=atlas`,
 `HF_API_BASE_URL=http://localhost:4010`, `HF_CREDENTIALS=mock:mock`,
 `SIGNUP_BONUS_CREDITS=200`, `E2E_TEST_MODE=true`. Magic links are printed to the
 dev-server log (no Resend key needed); media is stored under `.data/media`; the
@@ -135,7 +135,14 @@ Key files: `lib/generations/{submit,finalize,reconcile,cancel}.ts`,
 
 1. Create the Atlas cluster, R2 bucket, Resend domain and Stripe products.
 2. Set every `(required)` variable from `.env.example` in Vercel (Production + Preview).
-3. `vercel.json` schedules `/api/cron/reconcile` every minute (send `CRON_SECRET`).
+   **Demo mode:** production boots with only Auth, Resend, MongoDB and
+   `CRON_SECRET`. Without the Higgsfield + R2 group, Generate answers "not
+   available yet"; without the Stripe group, checkout is disabled. Setting any
+   key of a group makes the whole group required.
+3. `vercel.json` schedules `/api/cron/reconcile` once a day (Vercel Hobby allows
+   only daily crons); `.github/workflows/reconcile.yml` calls it every 5 minutes.
+   Set the repo secret `CRON_SECRET` and the repo variable `APP_URL`. On Vercel
+   Pro you can switch the Vercel cron back to `* * * * *` instead.
 4. Stripe webhook endpoint: `https://<domain>/api/webhooks/stripe` with events
    `checkout.session.completed`, `checkout.session.async_payment_succeeded`,
    `invoice.paid`, `customer.subscription.updated`, `customer.subscription.deleted`,

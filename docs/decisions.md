@@ -7,11 +7,11 @@ Newest decisions go at the bottom of each section.
 
 | Placeholder | Value | Why |
 |---|---|---|
-| `BRAND_NAME` | **Vireo** | A small green songbird: short, ownable, and the lime accent reads as its plumage. |
-| `APP_SLUG` | `vireo-studio` | |
-| `PRODUCTION_URL` | `https://vireo.studio` | Placeholder domain; change in env (`APP_URL`, `AUTH_URL`). |
-| `EMAIL_FROM` | `Vireo <login@vireo.studio>` | Domain must be verified in Resend before launch. |
-| `SUPPORT_EMAIL` | `support@vireo.studio` | |
+| `BRAND_NAME` | **Atlas Studio** | AtlasHub product brand (renamed from the working name Vireo, 2026-10-28). |
+| `APP_SLUG` | `atlas-studio` | |
+| `PRODUCTION_URL` | `https://studio.atlashub.si` | Test domain for now; change in env (`APP_URL`, `AUTH_URL`). |
+| `EMAIL_FROM` | `Atlas Studio <login@atlashub.si>` | Domain must be verified in Resend before launch. |
+| `SUPPORT_EMAIL` | `support@atlashub.si` | |
 | `CREDIT_MARKUP` | `2.0` | Sell at 2× the Higgsfield API cost; with `CREDIT_USD_VALUE=0.01` a $0.094 image costs 19 credits. |
 
 ## Sources and precedence
@@ -217,3 +217,12 @@ image, Plus 6 / 8, Ultra 8 / 12.
   the URL plus re-fetching the status. Revisit if the docs add a signature.
 - **Accessibility:** secondary text is `#9a9b9d` (Quanta's `#828282` fails
   4.5:1 on card surfaces). Lighthouse accessibility: 97+ on the generators.
+- **Hosting on Vercel Hobby (2026-10-28):** the Vercel cron runs daily and a
+  GitHub Actions workflow calls `/api/cron/reconcile` every 5 minutes (Hobby
+  rejects sub-daily crons). Hobby is for non-commercial use: move to Pro before
+  selling credits.
+- **Demo mode (2026-10-28):** only Auth, Resend, MongoDB and `CRON_SECRET` are
+  required in production. Generation (Higgsfield + R2) and payments (Stripe)
+  are optional groups, all-or-nothing once any key is set
+  (`lib/env.ts`). Without generation, `submitGeneration` refuses before any
+  debit.
